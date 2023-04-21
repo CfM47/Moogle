@@ -3,15 +3,30 @@
 
 public static class Moogle
 {
-    public static SearchResult Query(string query) {
-        // Modifique este método para responder a la búsqueda
+    public static SearchResult Query(string query , TfIdfDirectory Tf)  //aqui tuve que pasar como parametro el objeto que contiene las cosas que solo se hacen al principio
+    {        
+        string suggestion = query;
 
-        SearchItem[] items = new SearchItem[3] {
-            new SearchItem("Hello World", "Lorem ipsum dolor sit amet", 0.9f),
-            new SearchItem("Hello World", "Lorem ipsum dolor sit amet", 0.5f),
-            new SearchItem("Hello World", "Lorem ipsum dolor sit amet", 0.1f),
-        };
+        string[] queryWords = WordOperator.GetWords(query);
+        foreach(string word in queryWords)
+        {
+            //verifica si hay palabras de la query que no aparecen y las cambia por la palabra posible
+            if (!Tf.WordsIndexes.ContainsKey(word))
+            {
+                var PosibleWords = Tf.WordsIndexes.Keys.ToList();
+                string sugestedWord = WordOperator.Suggestion(word, PosibleWords);
+                suggestion = suggestion.Replace(word, sugestedWord);
+            }
+        }
+        
+        //obtienen los resultados
+        List<QueryDimension> suggestionVector = Tf.GenerateQueryVector(suggestion);
+        string[] suggestionWords = WordOperator.GetWords(suggestion);
+        List<SearchItem> items = Tf.MatchToDataBase(suggestionVector, suggestionWords);
 
-        return new SearchResult(items, query);
+        if (suggestion == query) //verifica si fue necesario sugerir algo
+            suggestion = "";
+
+        return new SearchResult(items, suggestion);
     }
 }

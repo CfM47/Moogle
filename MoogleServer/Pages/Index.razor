@@ -8,6 +8,7 @@
 
 <button type="default" class="btn btn-primary" @onclick="RunQuery">🔍 Buscar</button>
 
+
 @if (!string.IsNullOrEmpty(result.Suggestion)) {
     <div class="suggestion">
         <p>¿Quisite decir <strong><a href="#">@result.Suggestion</a></strong>?</p>
@@ -25,11 +26,13 @@
 }
 </ul>
 
+@inject TfIdfDirectory Tf;  //inyectar el objeto que contiene el precalculo 
+
 @code {
     private string query = "";
     private SearchResult result = new SearchResult();
 
     private void RunQuery() {
-        result = Moogle.Query(query);
+        result = Moogle.Query(query , Tf);
     }
 }
