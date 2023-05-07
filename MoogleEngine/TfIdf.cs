@@ -146,9 +146,11 @@ public class TfIdfDirectory
         string wordResult = "";     // palabra mas relevante (la de menos idf en la base de datos)
         foreach (string word in query)
         {
+            
             //si la palabra es mas relevante y si aparece en el documento calcula su snippet
             if (WordsIndexes[word].ContainsKey(documentName) && (Idf(word, DocumentNames) < Idf(wordResult, DocumentNames) || wordResult ==""))
             {
+                result = "";
                 //estas dos lineas hallan la mediana de las posiciones de en las que aparece word
                 int mediumPos = WordsIndexes[word][documentName].Count / 2;
                 int position = WordsIndexes[word][documentName][mediumPos];
@@ -161,7 +163,21 @@ public class TfIdfDirectory
                 for (int i = position - 40; i < position + 40; i++)
                 {
                     if (i >= 0 && i < text.Length)
-                        result += text[i];
+                    {
+                        if (i> 0 && result == "" && text[i - 1] != ' ')
+                        {
+                            position++;
+                        }
+                        else if (i< text.Length - 1 && i == position + 39 && text[i + 1] != ' ')
+                        {
+                            position++;
+                            result += text[i];
+                        }
+
+                        else
+                            result += text[i];
+                    }
+                        
                 }
                 wordResult = word;
             }

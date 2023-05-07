@@ -12,7 +12,7 @@ builder.Services.AddServerSideBlazor();
 
 //Inyectar el objeto que tiene el precalculo a mi servidor
 //es posible que haya que cambiar la direccion de la base de datos
-string databasePath = "C:\\Users\\Jossue\\Cosas\\proyectos y cosas\\Proyectos de Programacion\\MoogleClassTester\\TxtDatabase";
+string databasePath = ".\\Database";
 builder.Services.AddSingleton(s => BuildTfIdfDirectory(databasePath));
 
 

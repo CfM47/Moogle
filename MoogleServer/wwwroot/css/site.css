@@ -2,6 +2,19 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: white;
+    background-image: url('metallica.png');
+}
+
+.titulo{
+    font-family: 'pastor of muppets';
+    font-size: 100px;
+    position:relative;
+    botton: 30px;
+}
+@font-face {
+    font-family: 'pastor of muppets';
+    src: url('pastor of muppets.ttf') format('truetype');
 }
 
 h1:focus {
@@ -9,13 +22,13 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: #c10000;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #c10000;
+    border-color: #c10000;
 }
 
 .content {
