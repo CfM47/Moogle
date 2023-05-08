@@ -1,5 +1,6 @@
 # Moogle!
-
+MOOGLE!
+ para abrir moogle abre el proyecto en tu compilador y dale run.
 
 
 > Proyecto de Programación I.
