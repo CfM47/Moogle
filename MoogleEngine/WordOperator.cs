@@ -110,19 +110,19 @@ public static class WordOperator
         ConvertToSimpleVersion(words);
         return words;
     }
-    public static WordOperations GetWordOperation(string queryWord)
+    public static WordOperation GetWordOperation(string queryWord)
     {
         //este toma una palabra, que puede contener un operador de busqueda o no, y devuelve este operador
         switch (queryWord[0])
         {
             case '!':
-                return WordOperations.MustNotBe;
+                return new OpMustNotBe();
             case '^':
-                return WordOperations.MustBe;
+                return new OpMustBe();
             case '*':
-                return WordOperations.IsRelevant;
+                return new OpIsRelevant(GetRelevance(queryWord));
             default:
-                return WordOperations.NoOperation;
+                return new OpNone();
         }
     }
     public static int GetRelevance(string word)
@@ -137,6 +137,41 @@ public static class WordOperator
             else break;
         }
         return result;
+    }
+    public static int GetSmallerDistance(List<int> InstancesA, List<int> InstancesB)
+    {
+        //este metodo coje las listas de las ocurrencias de dos palabras (tienen que estar ordenadas) y devuelve
+        //la menor distancia que exista entre las dos. Si esta es mayor que 200 devuelve 0
+        
+        //vamos a unir las listas en una sola, que siga estando ordenada
+        List<(int instance, bool IsA)> values = new List<(int instance, bool IsB)> ();
+        int k = 0;
+        int j = 0;
+        while(k < InstancesA.Count && j < InstancesB.Count)
+        {
+            if (InstancesA[k] < InstancesB[j])
+            {
+                values.Add((InstancesA[k], true));
+                k++;
+            }
+            else
+            {
+                values.Add((InstancesB[j], false));
+                j++;
+            }
+        }
+
+        int result = 0;
+        for(int i = 1; i < values.Count; i++)
+        {
+            if (values[i].IsA != values[i - 1].IsA)
+            {
+                int distance = values[i].instance - values[i - 1].instance;
+                result = distance < result || result == 0? distance : result;
+            }
+        }
+
+        return result > 15 ? 0 : result;
     }
     public static string Suggestion(string word, List<string> PosibleWords)
     {
@@ -195,5 +230,5 @@ public static class WordOperator
         //    porcentaje = ((double)d[m, n] / (double)t.Length);
         return d[m, n];
     }
-    public enum WordOperations { NoOperation = 0, MustNotBe, MustBe, IsRelevant, IsCloseTo}
+
 }

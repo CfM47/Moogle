@@ -47,7 +47,7 @@ public class TfIdfDirectory
         List <SimilarityResult> Results = new List<SimilarityResult>();
         for(int i = 0; i < DirectoryVector.Count; i++)
         {
-            double value = CosineSimilarity(queryVector, DirectoryVector[i]);
+            double value = CosineSimilarity(queryVector, DirectoryVector[i], DocumentNames[i]);
             SimilarityResult result = new SimilarityResult(value, i);
             Results.Add(result);
         }
@@ -110,30 +110,53 @@ public class TfIdfDirectory
             if(words.Contains(word))        // si se encuentra la palabra en la query, calcula su valor
                 result.Add(QueryTfIdf(word,query));
             else                            //... si no se encuentra ni te molestes en calcular, dale valor 0
-                result.Add(new QueryDimension(0d, word, WordOperator.WordOperations.NoOperation));
+                result.Add(new QueryDimension(0d, word, new OpNone()));
         }
         return result;
     }
-    public double CosineSimilarity(List<QueryDimension> vector1, List<double> vector2)
+    public double CosineSimilarity(List<QueryDimension> QueryVector, List<double> DocumentVector, string documentName)
     {
         //este metodo calcula cuan similares son dos vectores, mientras mas lo sean, su valor va a ser mas cercano a 1
         double vectorProduct = 0;
         double absVector1 = 0;
         double absVector2 = 0;
-        if(vector1.Count != vector2.Count) return 0;
-        for(int i = 0; i < vector1.Count; i++)
+        if(QueryVector.Count != DocumentVector.Count) return 0;
+        for(int i = 0; i < QueryVector.Count; i++)
         { 
             //esta if-else statement decide que hacer en depedencia de el operador de busqueda que tenga la palabra
-            if(vector1[i].Operation == WordOperator.WordOperations.MustNotBe && vector2[i] != 0)
+            if(QueryVector[i].Operation is OpMustNotBe && DocumentVector[i] != 0)
                 return 0;
-            else if(vector1[i].Operation == WordOperator.WordOperations.MustBe && vector2[i] == 0)
+            else if(QueryVector[i].Operation is OpMustBe && DocumentVector[i] == 0)
                 return 0;
-            else if (vector1[i].Operation == WordOperator.WordOperations.IsRelevant)
-                vector1[i].TfIdfValue *=  vector1[i].Relevance + 1;
+            else if (QueryVector[i].Operation is OpIsRelevant)
+            {
+                var op = QueryVector[i].Operation as OpIsRelevant;
+                QueryVector[i].TfIdfValue *= op.WordRelevance + 1;
+            }           
+            else if(QueryVector[i].Operation is OpIsCloseTo)
+            {
+                int distance = 0;
+                try
+                {
+                    var op = QueryVector[i].Operation as OpIsCloseTo;
+                    var a = WordsIndexes[QueryVector[i].Word][documentName];
+                    var b = WordsIndexes[op.NearbyWord][documentName];
 
-            absVector1 += Math.Pow(vector1[i].TfIdfValue, 2);
-            absVector2 += Math.Pow(vector2[i], 2);
-            vectorProduct += vector1[i].TfIdfValue * vector2[i];
+                    distance = WordOperator.GetSmallerDistance(a, b);
+                }
+                catch
+                {
+                    distance = 0;
+                }
+                if (distance == 0)
+                    return 0;
+                else
+                    QueryVector[i].TfIdfValue += 1 + 1 / distance;
+            }
+
+            absVector1 += Math.Pow(QueryVector[i].TfIdfValue, 2);
+            absVector2 += Math.Pow(DocumentVector[i], 2);
+            vectorProduct += QueryVector[i].TfIdfValue * DocumentVector[i];
         }
         return (absVector1* absVector2 == 0) ? 0 : vectorProduct / (Math.Sqrt(absVector1*absVector2));            
     }
@@ -210,20 +233,21 @@ public class TfIdfDirectory
 
         //esto coge la operacion
         int i = Array.IndexOf(words, term);
-        WordOperator.WordOperations operation = WordOperator.GetWordOperation(query[i]);
+        WordOperation op = new OpNone();
+        if (i < words.Length - 1)
+        {
+            if (words[i + 1] == "~")
+            {
+                op = new OpIsCloseTo(words[i + 2]);
+            }
+        }
+        else 
+            op = WordOperator.GetWordOperation(query[i]);
 
         //esto da el valor tf
         value = words.Where(word => word == term).Count();
 
-        //esto es para obtener la relevancia del termino en caso de que su operador sea *
-        if(operation == WordOperator.WordOperations.IsRelevant)
-        {
-            int relevance = WordOperator.GetRelevance(query[i]);
-            return new QueryDimension(value, term, relevance);
-
-        }
-
-        return new QueryDimension(value, term, operation);
+        return new QueryDimension(value, term, op);
         
     }
     private double Idf(string term, string[] documents)

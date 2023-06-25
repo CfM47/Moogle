@@ -16,7 +16,7 @@ public static class WordsIndexer
 			string text = File.ReadAllText(documentPath);
 
 			//esta parte funciona casi igual que la funcion string.split() pero la uso para obtener la posicion de la palabra
-			char[] separators = {' ',',',';','.',':','"','\r','\n'};
+			char[] separators = {' ',',',';','.',':','"','\r','\n','~' };
 			string word = "";
 			for(int i = 0; i< text.Length; i++)
 			{
