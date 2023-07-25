@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+.#!/usr/bin/bash
 option=$1;
 editor=$2;
 
@@ -10,13 +10,35 @@ case $option in
         pdflatex -synctex=1 -interaction=nonstopmode ../informe/Informe\ moogle\ Latex.tex
         ;;
     "show_report")
-        okular ../Informe/Informe\ moogle\ Latex.pdf
+        file="../Informe/Informe\ moogle\ Latex.pdf";
+        if [[! -f $file ]] 
+        then
+            pdflatex -synctex=1 -interaction=nonstopmode ../informe/Informe\ moogle\ Latex.tex
+        fi
+        if [[editor -eq ""]]
+        then
+            okular $file
+        else
+            command = '$editor $file'
+            eval " $command"
+        fi        
         ;;
     "slides")
         pdflatex -synctex=1 -interaction=nonstopmode ../presentacion/main.tex
         ;;
     "show_slides")
-        okular ../presentacion/main.pdf
+        file="../presentacion/main.pdf";
+        if [[! -f $file ]] 
+        then
+            pdflatex -synctex=1 -interaction=nonstopmode ../presentacion/main.tex
+        fi
+        if [[editor -eq ""]]
+        then
+            okular $file
+        else
+            command = '$editor $file'
+            eval " $command"
+        fi    
         ;;
     "clean")
         rm ../presentacion/main.log
@@ -36,10 +58,13 @@ case $option in
         rm ../informe/Informe\ moogle\ Latex.log
         rm ../informe/Informe\ moogle\ Latex.pdf
         rm ../informe/Informe\ moogle\ Latex.synctex.gz
-
-        
+        rm ../DatabaseInfo.json
+        rm -r ../MoogleServer/bin
+        rm -r ../MoogleServer/obj
+        rm -r ../MoogleEngine/bin
+        rm -r ../MoogleEngine/obj          
         ;;
 esac
 
 
-echo "Hasdf"
+echo "done"
