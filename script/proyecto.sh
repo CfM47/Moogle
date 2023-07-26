@@ -1,10 +1,11 @@
-.#!/usr/bin/bash
+#!/usr/bin/bash
 option=$1;
 editor=$2;
 
 case $option in
     "run")
         dotnet watch run --project ../MoogleServer
+	#../../../../../Instaladores/dotnet-sdk-6.0.412-linux-x64/dotnet watch run --project ../MoogleServer
         ;;
     "report")
         pdflatex -synctex=1 -interaction=nonstopmode ../informe/Informe\ moogle\ Latex.tex
@@ -59,10 +60,10 @@ case $option in
         rm ../informe/Informe\ moogle\ Latex.pdf
         rm ../informe/Informe\ moogle\ Latex.synctex.gz
         rm ../DatabaseInfo.json
-        rm -r ../MoogleServer/bin
-        rm -r ../MoogleServer/obj
-        rm -r ../MoogleEngine/bin
-        rm -r ../MoogleEngine/obj          
+        rm -r ../MoogleServer/bin/
+        rm -r ../MoogleServer/obj/
+        rm -r ../MoogleEngine/bin/
+        rm -r ../MoogleEngine/obj/          
         ;;
 esac
 

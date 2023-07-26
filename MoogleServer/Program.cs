@@ -12,7 +12,7 @@ builder.Services.AddServerSideBlazor();
 
 //Inyectar el objeto que tiene el precalculo a mi servidor
 //es posible que haya que cambiar la direccion de la base de datos
-string databasePath = "..\\Content";
+string databasePath = "../Content";
 builder.Services.AddSingleton(s => BuildTfIdfDirectory(databasePath));
 
 
