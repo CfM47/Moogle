@@ -5,7 +5,6 @@ editor=$2;
 case $option in
     "run")
         dotnet watch run --project ../MoogleServer
-	#../../../../../Instaladores/dotnet-sdk-6.0.412-linux-x64/dotnet watch run --project ../MoogleServer
         ;;
     "report")
         pdflatex -synctex=1 -interaction=nonstopmode ../informe/Informe\ moogle\ Latex.tex
@@ -16,11 +15,11 @@ case $option in
         then
             pdflatex -synctex=1 -interaction=nonstopmode ../informe/Informe\ moogle\ Latex.tex
         fi
-        if [[editor -eq ""]]
+        if [[ "$editor" -eq "" ]]
         then
             okular $file
         else
-            command = '$editor $file'
+            command='$editor $file'
             eval " $command"
         fi        
         ;;
@@ -33,11 +32,11 @@ case $option in
         then
             pdflatex -synctex=1 -interaction=nonstopmode ../presentacion/main.tex
         fi
-        if [[editor -eq ""]]
+        if [[ "$editor" -eq "" ]]
         then
             okular $file
         else
-            command = '$editor $file'
+            command='$editor $file'
             eval " $command"
         fi    
         ;;
@@ -63,7 +62,9 @@ case $option in
         rm -r ../MoogleServer/bin/
         rm -r ../MoogleServer/obj/
         rm -r ../MoogleEngine/bin/
-        rm -r ../MoogleEngine/obj/          
+        rm -r ../MoogleEngine/obj/
+        rm -r ../bin/
+        rm -r ../obj/           
         ;;
 esac
 
