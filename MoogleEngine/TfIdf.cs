@@ -58,7 +58,7 @@ public class TfIdfDirectory
         List<SearchItem> Items = new List<SearchItem>();
 
         //llena la lista con 5 documentos relevantes
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 5 && i < Results.Count; i++)
         {
             if (Results[i].Value != 0)
             {
