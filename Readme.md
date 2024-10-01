@@ -42,7 +42,7 @@ docker build -t moogle .
 4. Run the Docker container:
 
 ```bash
-docker run --rm -d -p 5285:5285 --name moogleserver_container moogleserver:latest
+docker run --rm -d -p 5285:5285 --name mooglecontainer moogle
 ```
 
 This will start the server on port 5000. You can access the application in your browser at `http://localhost:5285`.
