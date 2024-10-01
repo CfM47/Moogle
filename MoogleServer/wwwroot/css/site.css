@@ -3,7 +3,10 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: white;
-    background-image: url('metallica.png');
+    background-image: url('../images/metallica.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
 .titulo{
@@ -14,7 +17,7 @@ html, body {
 }
 @font-face {
     font-family: 'pastor of muppets';
-    src: url('pastor of muppets.ttf') format('truetype');
+    src: url('../fonts/Pastor\ of\ Muppets.TTF') format('truetype');
 }
 
 h1:focus {

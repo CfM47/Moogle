@@ -38,12 +38,13 @@ app.Run();
 static TfIdfDirectory BuildTfIdfDirectory(string databasePath)
 {
     //este metodo decide como construir el objeto tfIdf
-    string mgl = Directory.GetParent(databasePath).FullName + "\\DatabaseInfo.json";
+    var parent = Directory.GetParent(databasePath) ?? throw new DirectoryNotFoundException("No se encontro el directorio de la base de datos");
+    string mgl = Path.Combine(parent.FullName, "DatabaseInfo.json");
     TfIdfDirectory tf;
     if (File.Exists(mgl) && new DirectoryInfo(mgl).LastWriteTime > new DirectoryInfo(databasePath).LastWriteTime)
     {
         string jsonString = File.ReadAllText(mgl);
-        return tf = JsonSerializer.Deserialize<TfIdfDirectory>(jsonString);
+        return tf = JsonSerializer.Deserialize<TfIdfDirectory>(jsonString) ?? throw new Exception("No se pudo deserializar el archivo de la base de datos");
 
     }
     return tf = new TfIdfDirectory(databasePath);

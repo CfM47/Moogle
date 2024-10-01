@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 
 namespace MoogleEngine;
-public class TfIdfDirectory 
+public class TfIdfDirectory
 {
     //esta clase es una estructura que guarda objetos relacionados con una base de datos de .txt
     //necesarios para el funcionamiento el moogle engine
@@ -23,13 +23,13 @@ public class TfIdfDirectory
         //crea el diccionario y todos los vectores documentos
         WordsIndexes = WordsIndexer.GetWordIndexes(documentPaths);
         DirectoryVector = DataBaseVector(DocumentNames);
-        
+
         //guarda this en un .json
         SaveDatabaseStructure(directoryPath);
     }
     [JsonConstructor]
-    public TfIdfDirectory(string directoryPath, 
-                          string [] documentNames, Dictionary<string, Dictionary<string, 
+    public TfIdfDirectory(string directoryPath,
+                          string[] documentNames, Dictionary<string, Dictionary<string,
                           List<int>>> wordsIndexes, List<List<double>> directoryVector)
     {
         this.DirectoryPath = directoryPath;
@@ -44,8 +44,8 @@ public class TfIdfDirectory
     {
         //este metodo devuelve los 5 documentos mas relevantes
 
-        List <SimilarityResult> Results = new List<SimilarityResult>();
-        for(int i = 0; i < DirectoryVector.Count; i++)
+        List<SimilarityResult> Results = new List<SimilarityResult>();
+        for (int i = 0; i < DirectoryVector.Count; i++)
         {
             double value = CosineSimilarity(queryVector, DirectoryVector[i], DocumentNames[i]);
             SimilarityResult result = new SimilarityResult(value, i);
@@ -71,10 +71,10 @@ public class TfIdfDirectory
         }
         return Items;
     }
-    private List <double> DocumentVector(string document)
+    private List<double> DocumentVector(string document)
     {
         //crea los vectores, con valores de tf-idf en cada dimension, de cada documento 
-        List <double> result = new List<double>();
+        List<double> result = new List<double>();
 
         foreach (string word in WordsIndexes.Keys)
             result.Add(DocumentTfIdf(word, document));
@@ -99,16 +99,16 @@ public class TfIdfDirectory
 
         //este bloquecito convierte la query en un arreglo de palabras simplificadas, para
         //que se pueda comprobar si estan en el diccionario de la base de datos
-        char[] separators = {' ',',',';','.',':','"','\r','\n'};
+        char[] separators = { ' ', ',', ';', '.', ':', '"', '\r', '\n' };
         string[] splittedquery = query.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         string[] words = WordOperator.GetWords(splittedquery);
         WordOperator.ConvertToSimpleVersion(words);
 
         //esto añade todas las dimensiones de el vector query
-        foreach(string word in WordsIndexes.Keys)
+        foreach (string word in WordsIndexes.Keys)
         {
-            if(words.Contains(word))        // si se encuentra la palabra en la query, calcula su valor
-                result.Add(QueryTfIdf(word,query));
+            if (words.Contains(word))        // si se encuentra la palabra en la query, calcula su valor
+                result.Add(QueryTfIdf(word, query));
             else                            //... si no se encuentra ni te molestes en calcular, dale valor 0
                 result.Add(new QueryDimension(0d, word, new OpNone()));
         }
@@ -120,20 +120,20 @@ public class TfIdfDirectory
         double vectorProduct = 0;
         double absVector1 = 0;
         double absVector2 = 0;
-        if(QueryVector.Count != DocumentVector.Count) return 0;
-        for(int i = 0; i < QueryVector.Count; i++)
-        { 
+        if (QueryVector.Count != DocumentVector.Count) return 0;
+        for (int i = 0; i < QueryVector.Count; i++)
+        {
             //esta if-else statement decide que hacer en depedencia de el operador de busqueda que tenga la palabra
-            if(QueryVector[i].Operation is OpMustNotBe && DocumentVector[i] != 0)
+            if (QueryVector[i].Operation is OpMustNotBe && DocumentVector[i] != 0)
                 return 0;
-            else if(QueryVector[i].Operation is OpMustBe && DocumentVector[i] == 0)
+            else if (QueryVector[i].Operation is OpMustBe && DocumentVector[i] == 0)
                 return 0;
             else if (QueryVector[i].Operation is OpIsRelevant)
             {
                 var op = QueryVector[i].Operation as OpIsRelevant;
                 QueryVector[i].TfIdfValue *= op.WordRelevance + 1;
-            }           
-            else if(QueryVector[i].Operation is OpIsCloseTo)
+            }
+            else if (QueryVector[i].Operation is OpIsCloseTo)
             {
                 int distance = 0;
                 try
@@ -158,7 +158,7 @@ public class TfIdfDirectory
             absVector2 += Math.Pow(DocumentVector[i], 2);
             vectorProduct += QueryVector[i].TfIdfValue * DocumentVector[i];
         }
-        return (absVector1* absVector2 == 0) ? 0 : vectorProduct / (Math.Sqrt(absVector1*absVector2));            
+        return (absVector1 * absVector2 == 0) ? 0 : vectorProduct / (Math.Sqrt(absVector1 * absVector2));
     }
     private string GetSnippet(string[] query, string documentName)
     {
@@ -169,9 +169,9 @@ public class TfIdfDirectory
         string wordResult = "";     // palabra mas relevante (la de menos idf en la base de datos)
         foreach (string word in query)
         {
-            
+
             //si la palabra es mas relevante y si aparece en el documento calcula su snippet
-            if (WordsIndexes[word].ContainsKey(documentName) && (Idf(word, DocumentNames) < Idf(wordResult, DocumentNames) || wordResult ==""))
+            if (WordsIndexes[word].ContainsKey(documentName) && (Idf(word, DocumentNames) < Idf(wordResult, DocumentNames) || wordResult == ""))
             {
                 result = "";
                 //estas dos lineas hallan la mediana de las posiciones de en las que aparece word
@@ -179,19 +179,19 @@ public class TfIdfDirectory
                 int position = WordsIndexes[word][documentName][mediumPos];
 
                 //estas dos lineas buscan el texto en donde aparece la palabra
-                string DocumentPath = DirectoryPath + "\\" + documentName;  
+                string DocumentPath = Path.Combine(DirectoryPath, documentName);
                 string text = File.ReadAllText(DocumentPath);
-                
+
                 //40 letras pa aca 40 letras pa allá...
                 for (int i = position - 40; i < position + 40; i++)
                 {
                     if (i >= 0 && i < text.Length)
                     {
-                        if (i> 0 && result == "" && text[i - 1] != ' ')
+                        if (i > 0 && result == "" && text[i - 1] != ' ')
                         {
                             position++;
                         }
-                        else if (i< text.Length - 1 && i == position + 39 && text[i + 1] != ' ')
+                        else if (i < text.Length - 1 && i == position + 39 && text[i + 1] != ' ')
                         {
                             position++;
                             result += text[i];
@@ -200,7 +200,7 @@ public class TfIdfDirectory
                         else
                             result += text[i];
                     }
-                        
+
                 }
                 wordResult = word;
             }
@@ -212,9 +212,9 @@ public class TfIdfDirectory
     private int TfInDocument(string term, string document)
     {
         //calcula la frecuencia un termino en un documento especifico del directorio
-        if (!WordsIndexes.ContainsKey(term)) 
+        if (!WordsIndexes.ContainsKey(term))
             return 0;
-        else if (!WordsIndexes[term].ContainsKey(document)) 
+        else if (!WordsIndexes[term].ContainsKey(document))
             return 0;
         else return WordsIndexes[term][document].Count;
     }
@@ -223,12 +223,12 @@ public class TfIdfDirectory
         //este metodo calcula el valor de una dimension del vector query
 
         int value = 0;
-        
+
         //esto convierte la query en dos arreglos de strings, uno con las palabras
         //y los operadores y otro sin estas en su version simple
-        char[] separators = {' ',',',';','.',':','"','\r','\n'};
-        string [] query = text.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-        string[] words = WordOperator.GetWords(query); 
+        char[] separators = { ' ', ',', ';', '.', ':', '"', '\r', '\n' };
+        string[] query = text.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        string[] words = WordOperator.GetWords(query);
         WordOperator.ConvertToSimpleVersion(words);
 
         //esto coge la operacion
@@ -241,14 +241,14 @@ public class TfIdfDirectory
                 op = new OpIsCloseTo(words[i + 2]);
             }
         }
-        else 
+        else
             op = WordOperator.GetWordOperation(query[i]);
 
         //esto da el valor tf
         value = words.Where(word => word == term).Count();
 
         return new QueryDimension(value, term, op);
-        
+
     }
     private double Idf(string term, string[] documents)
     {
@@ -279,7 +279,7 @@ public class TfIdfDirectory
     private void SaveDatabaseStructure(string path)
     {
         //guarda este objeto en un .json para usarlo mas tarde
-        string savePath = Directory.GetParent(path).FullName + "\\DatabaseInfo.json";
+        string savePath = Path.Combine(Directory.GetParent(path).FullName, "DatabaseInfo.json");
         string jsonString = JsonSerializer.Serialize(this);
         File.WriteAllText(savePath, jsonString);
     }
@@ -287,8 +287,8 @@ public class TfIdfDirectory
     #region Propierties
 
     public List<List<double>> DirectoryVector { get; } //la lista de los vectores documentos (i believe in listas supremacy)
-    public string DirectoryPath { get;} //la direccion de la base de datos
-    public string[] DocumentNames { get;} //los nombres de todos los documentos de la base de datos, sin su extension
-    public Dictionary<string, Dictionary<string, List<int>>> WordsIndexes { get;}  //este diccionario esta grande, pero facilita mucho todo
+    public string DirectoryPath { get; } //la direccion de la base de datos
+    public string[] DocumentNames { get; } //los nombres de todos los documentos de la base de datos, sin su extension
+    public Dictionary<string, Dictionary<string, List<int>>> WordsIndexes { get; }  //este diccionario esta grande, pero facilita mucho todo
     #endregion
 }
