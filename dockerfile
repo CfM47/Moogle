@@ -5,6 +5,6 @@ RUN apt-get update && apt-get install -y make
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 5285
 
 CMD ["make", "dev"]
